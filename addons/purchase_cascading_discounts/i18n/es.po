@@ -1,0 +1,98 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * purchase_cascading_discounts
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-01 00:00:00\n"
+"PO-Revision-Date: 2025-01-01 00:00:00\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: es\n"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount1
+msgid "Discount 1 (%)"
+msgstr "Descuento 1 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount2
+msgid "Discount 2 (%)"
+msgstr "Descuento 2 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount3
+msgid "Discount 3 (%)"
+msgstr "Descuento 3 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount4
+msgid "Discount 4 (%)"
+msgstr "Descuento 4 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__final_price
+msgid "Final Price"
+msgstr "Precio Final"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_purchase_order_line__applied_discount_1
+msgid "Disc. 1 (%)"
+msgstr "Desc. 1 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_purchase_order_line__applied_discount_2
+msgid "Disc. 2 (%)"
+msgstr "Desc. 2 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_purchase_order_line__applied_discount_3
+msgid "Disc. 3 (%)"
+msgstr "Desc. 3 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_purchase_order_line__applied_discount_4
+msgid "Disc. 4 (%)"
+msgstr "Desc. 4 (%)"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,field_description:purchase_cascading_discounts.field_purchase_order_line__price_before_discount
+msgid "Original Price"
+msgstr "Precio Original"
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,help:purchase_cascading_discounts.field_product_supplierinfo__discount2
+msgid "Second cascading discount applied to supplier price."
+msgstr "Segundo descuento en cascada aplicado al precio del proveedor."
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,help:purchase_cascading_discounts.field_product_supplierinfo__discount3
+msgid "Third cascading discount applied to supplier price."
+msgstr "Tercer descuento en cascada aplicado al precio del proveedor."
+
+#. module: purchase_cascading_discounts
+#: model:ir.model.fields,help:purchase_cascading_discounts.field_product_supplierinfo__discount4
+msgid "Fourth cascading discount applied to supplier price."
+msgstr "Cuarto descuento en cascada aplicado al precio del proveedor."
+
+#. module: purchase_cascading_discounts
+#: model:ir.ui.view,arch_db:purchase_cascading_discounts.product_template_purchase_form_view_inherit_cascade
+msgid "Cascading Discounts"
+msgstr "Descuentos en Cascada"
+
+#. module: purchase_cascading_discounts
+#: model:ir.ui.view,arch_db:purchase_cascading_discounts.purchase_order_form_inherit_cascade
+msgid "Applied Discounts"
+msgstr "Descuentos Aplicados"
+
+#. module: purchase_cascading_discounts
+#: code:addons/purchase_cascading_discounts/models/product_supplierinfo.py:0
+#, python-format
+msgid "Discounts must be between 0 and 100%"
+msgstr "Los descuentos deben estar entre 0 y 100%"
