@@ -12,28 +12,24 @@ class PurchaseOrderLine(models.Model):
     # Campos para mostrar los descuentos que fueron aplicados desde la tarifa
     applied_discount_1 = fields.Float(
         string='Desc. 1 (%)',
-        readonly=True,
         digits='Discount',
         help="Primer descuento aplicado desde la tarifa del proveedor"
     )
     
     applied_discount_2 = fields.Float(
         string='Desc. 2 (%)',
-        readonly=True,
         digits='Discount',
         help="Segundo descuento aplicado desde la tarifa del proveedor"
     )
     
     applied_discount_3 = fields.Float(
         string='Desc. 3 (%)',
-        readonly=True,
         digits='Discount',
         help="Tercer descuento aplicado desde la tarifa del proveedor"
     )
     
     applied_discount_4 = fields.Float(
         string='Desc. 4 (%)',
-        readonly=True,
         digits='Discount',
         help="Cuarto descuento aplicado desde la tarifa del proveedor"
     )

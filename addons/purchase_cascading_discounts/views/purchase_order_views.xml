@@ -9,20 +9,20 @@
             <!-- Añadir columnas de descuentos aplicados en la vista de lista -->
             <xpath expr="//field[@name='order_line']//field[@name='price_unit']" position="after">
                 <field name="price_before_discount" optional="hide" readonly="1"/>
-                <field name="applied_discount_1" optional="show" string="D1 (%)"/>
-                <field name="applied_discount_2" optional="show" string="D2 (%)"/>
-                <field name="applied_discount_3" optional="show" string="D3 (%)"/>
-                <field name="applied_discount_4" optional="show" string="D4 (%)"/>
+                <field name="applied_discount_1" optional="show" string="D1 (%)" readonly="parent.state in ('done', 'cancel')"/>
+                <field name="applied_discount_2" optional="show" string="D2 (%)" readonly="parent.state in ('done', 'cancel')"/>
+                <field name="applied_discount_3" optional="show" string="D3 (%)" readonly="parent.state in ('done', 'cancel')"/>
+                <field name="applied_discount_4" optional="show" string="D4 (%)" readonly="parent.state in ('done', 'cancel')"/>
             </xpath>
             
             <!-- Añadir campos en el formulario de línea de pedido -->
             <xpath expr="//field[@name='order_line']//form//field[@name='taxes_id']" position="after">
                 <separator string="Descuentos Aplicados"/>
                 <field name="price_before_discount" readonly="1"/>
-                <field name="applied_discount_1"/>
-                <field name="applied_discount_2"/>
-                <field name="applied_discount_3"/>
-                <field name="applied_discount_4"/>
+                <field name="applied_discount_1" readonly="parent.state in ('done', 'cancel')"/>
+                <field name="applied_discount_2" readonly="parent.state in ('done', 'cancel')"/>
+                <field name="applied_discount_3" readonly="parent.state in ('done', 'cancel')"/>
+                <field name="applied_discount_4" readonly="parent.state in ('done', 'cancel')"/>
             </xpath>
         </field>
     </record>
