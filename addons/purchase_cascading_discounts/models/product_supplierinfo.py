@@ -8,28 +8,28 @@ class ProductSupplierinfo(models.Model):
     
     # Campos para los descuentos en cascada
     discount1 = fields.Float(
-        string='Descuento 1 (%)',
+        string='Desc. 1 (%)',
         digits='Discount',
         default=0.0,
         help="Primer descuento en cascada aplicado al precio del proveedor."
     )
 
     discount2 = fields.Float(
-        string='Descuento 2 (%)',
+        string='Desc. 2 (%)',
         digits='Discount',
         default=0.0,
         help="Segundo descuento en cascada aplicado al precio del proveedor."
     )
     
     discount3 = fields.Float(
-        string='Descuento 3 (%)',
+        string='Desc. 3 (%)',
         digits='Discount',
         default=0.0,
         help="Tercer descuento en cascada aplicado al precio del proveedor."
     )
     
     discount4 = fields.Float(
-        string='Descuento 4 (%)',
+        string='Desc. 4 (%)',
         digits='Discount',
         default=0.0,
         help="Cuarto descuento en cascada aplicado al precio del proveedor."
