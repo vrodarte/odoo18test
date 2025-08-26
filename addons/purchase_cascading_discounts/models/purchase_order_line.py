@@ -37,10 +37,44 @@ class PurchaseOrderLine(models.Model):
     # Campo para mostrar el precio antes de descuentos
     price_before_discount = fields.Float(
         string='Precio Original',
-        readonly=True,
         digits='Product Price',
         help="Precio original antes de aplicar los descuentos en cascada"
     )
+    
+    # Campo computado para el precio final
+    computed_final_price = fields.Float(
+        string='Precio Calculado',
+        compute='_compute_final_price',
+        digits='Product Price',
+        store=False,
+        help="Precio calculado aplicando descuentos en cascada"
+    )
+    
+    @api.depends('price_before_discount', 'applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4')
+    def _compute_final_price(self):
+        """
+        Calcula el precio final basado en el precio original y los descuentos en cascada.
+        """
+        for line in self:
+            if line.price_before_discount > 0:
+                final_price = line.price_before_discount
+                discounts = [
+                    line.applied_discount_1 or 0.0,
+                    line.applied_discount_2 or 0.0,
+                    line.applied_discount_3 or 0.0,
+                    line.applied_discount_4 or 0.0
+                ]
+                
+                for discount in discounts:
+                    if discount > 0:
+                        final_price *= (1 - (discount / 100.0))
+                
+                line.computed_final_price = final_price
+                # Actualizar price_unit automáticamente
+                if line.price_unit != final_price:
+                    line.price_unit = final_price
+            else:
+                line.computed_final_price = line.price_unit or 0.0
     
     @api.onchange('product_id')
     def _onchange_product_id_cascade_discounts(self):
@@ -119,13 +153,17 @@ class PurchaseOrderLine(models.Model):
         if self.product_id and self.order_id and self.order_id.partner_id:
             self._onchange_product_id_cascade_discounts()
     
-    @api.onchange('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4')
+    @api.onchange('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'price_before_discount')
     def _onchange_manual_discounts(self):
         """
-        Recalcula el precio final cuando se modifican manualmente los descuentos.
+        Recalcula el precio final cuando se modifican manualmente los descuentos o el precio base.
         """
         if self.price_before_discount > 0:
-            self._calculate_final_price_from_discounts()
+            # Forzar el recálculo
+            self._compute_final_price()
+        elif self.price_unit and not self.price_before_discount:
+            # Si no hay precio base, usar el precio actual como base
+            self.price_before_discount = self.price_unit
     
     @api.onchange('price_unit')
     def _onchange_price_unit(self):
@@ -207,3 +245,28 @@ class PurchaseOrderLine(models.Model):
                         _('El descuento %d debe estar entre 0%% y 100%%. '
                           'Valor actual: %.2f%%') % (i, discount)
                     )
+    
+    def write(self, vals):
+        """
+        Sobrescribe write para recalcular precios cuando se modifican descuentos.
+        """
+        result = super().write(vals)
+        
+        # Si se modificó algún descuento o el precio base, recalcular
+        discount_fields = ['applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'price_before_discount']
+        if any(field in vals for field in discount_fields):
+            for line in self:
+                if line.price_before_discount > 0:
+                    line._compute_final_price()
+        
+        return result
+    
+    @api.model
+    def create(self, vals):
+        """
+        Sobrescribe create para asegurar cálculos correctos en nuevas líneas.
+        """
+        line = super().create(vals)
+        if line.price_before_discount > 0:
+            line._compute_final_price()
+        return line
