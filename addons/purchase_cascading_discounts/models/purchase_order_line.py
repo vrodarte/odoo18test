@@ -82,20 +82,15 @@ class PurchaseOrderLine(models.Model):
             ]
             
             # 4. Aplicar los descuentos en cascada
-            cascaded_price = price
             for field_name, applied_field in discount_fields:
                 disc_value = 0.0
                 if hasattr(seller, field_name):
                     disc_value = getattr(seller, field_name, 0.0) or 0.0
                 
-                if disc_value > 0:
-                    cascaded_price *= (1 - (disc_value / 100.0))
-                    setattr(self, applied_field, disc_value)
-                else:
-                    setattr(self, applied_field, 0.0)
+                setattr(self, applied_field, disc_value)
             
-            # 5. Actualizar el precio unitario con el precio final calculado
-            self.price_unit = cascaded_price
+            # 5. Calcular el precio final usando la función auxiliar
+            self._calculate_final_price_from_discounts()
             
             # Log para debugging
             _logger.info(
@@ -105,7 +100,7 @@ class PurchaseOrderLine(models.Model):
                 self.product_id.name,
                 self.order_id.partner_id.name,
                 price,
-                cascaded_price,
+                self.price_unit,
                 self.applied_discount_1,
                 self.applied_discount_2,
                 self.applied_discount_3,
@@ -128,6 +123,67 @@ class PurchaseOrderLine(models.Model):
         if self.product_id and self.order_id and self.order_id.partner_id:
             self._onchange_product_id_cascade_discounts()
     
+    @api.onchange('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4')
+    def _onchange_manual_discounts(self):
+        """
+        Recalcula el precio final cuando se modifican manualmente los descuentos.
+        """
+        if self.price_before_discount > 0:
+            self._calculate_final_price_from_discounts()
+    
+    @api.onchange('price_unit')
+    def _onchange_price_unit(self):
+        """
+        Cuando se modifica manualmente el precio unitario, actualizar el precio base
+        para que los cálculos de descuento funcionen correctamente.
+        """
+        # Si no hay precio base registrado, usar el precio actual como base
+        if not self.price_before_discount and self.price_unit:
+            self.price_before_discount = self.price_unit
+            # Limpiar descuentos si se establece un precio manual
+            self.applied_discount_1 = 0.0
+            self.applied_discount_2 = 0.0
+            self.applied_discount_3 = 0.0
+            self.applied_discount_4 = 0.0
+    
+    def _calculate_final_price_from_discounts(self):
+        """
+        Calcula el precio final aplicando los descuentos en cascada
+        al precio antes de descuentos.
+        """
+        if not self.price_before_discount:
+            return
+        
+        # Aplicar descuentos en cascada
+        final_price = self.price_before_discount
+        discounts = [
+            self.applied_discount_1 or 0.0,
+            self.applied_discount_2 or 0.0,
+            self.applied_discount_3 or 0.0,
+            self.applied_discount_4 or 0.0
+        ]
+        
+        for discount in discounts:
+            if discount > 0:
+                final_price *= (1 - (discount / 100.0))
+        
+        # Actualizar el precio unitario
+        self.price_unit = final_price
+        
+        # Log para debugging
+        _logger.info(
+            'Descuentos manuales aplicados: Producto=%s, '
+            'Precio Original=%.2f, Precio Final=%.2f, '
+            'Descuentos=[%.2f%%, %.2f%%, %.2f%%, %.2f%%]',
+            self.product_id.name or 'N/A',
+            self.price_before_discount,
+            final_price,
+            self.applied_discount_1,
+            self.applied_discount_2,
+            self.applied_discount_3,
+            self.applied_discount_4
+        )
+    
     @api.depends('product_qty', 'price_unit', 'taxes_id')
     def _compute_amount(self):
         """
@@ -136,3 +192,22 @@ class PurchaseOrderLine(models.Model):
         """
         res = super()._compute_amount()
         return res
+    
+    @api.constrains('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4')
+    def _check_discount_values(self):
+        """
+        Valida que los descuentos estén en un rango válido (0-100%).
+        """
+        for line in self:
+            discounts = [
+                line.applied_discount_1,
+                line.applied_discount_2,
+                line.applied_discount_3,
+                line.applied_discount_4
+            ]
+            for i, discount in enumerate(discounts, 1):
+                if discount < 0 or discount > 100:
+                    raise ValidationError(
+                        _('El descuento %d debe estar entre 0%% y 100%%. '
+                          'Valor actual: %.2f%%') % (i, discount)
+                    )
