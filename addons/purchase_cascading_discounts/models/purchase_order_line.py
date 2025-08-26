@@ -46,17 +46,14 @@ class PurchaseOrderLine(models.Model):
         help="Precio original antes de aplicar los descuentos en cascada"
     )
     
-    @api.onchange('product_id', 'product_qty', 'product_uom', 'date_planned')
-    def _onchange_product_id(self):
+    @api.onchange('product_id')
+    def _onchange_product_id_cascade_discounts(self):
         """
-        Sobrescribe el método onchange para aplicar los descuentos en cascada
-        cuando se selecciona un producto en el pedido de compra.
+        Aplica los descuentos en cascada cuando se selecciona un producto
+        en el pedido de compra.
         """
-        # 1. Llamar al método original para obtener valores por defecto
-        res = super()._onchange_product_id()
-        
-        if not self.product_id or not self.order_id.partner_id:
-            return res
+        if not self.product_id or not self.order_id or not self.order_id.partner_id:
+            return
         
         # 2. Buscar la tarifa de proveedor relevante
         params = {'partner_id': self.order_id.partner_id}
@@ -121,8 +118,15 @@ class PurchaseOrderLine(models.Model):
             self.applied_discount_3 = 0.0
             self.applied_discount_4 = 0.0
             self.price_before_discount = 0.0
-        
-        return res
+    
+    @api.onchange('product_qty', 'product_uom', 'date_planned')
+    def _onchange_cascade_params(self):
+        """
+        Re-aplica los descuentos cuando cambian parámetros que podrían
+        afectar la selección de la tarifa del proveedor.
+        """
+        if self.product_id and self.order_id and self.order_id.partner_id:
+            self._onchange_product_id_cascade_discounts()
     
     @api.depends('product_qty', 'price_unit', 'taxes_id')
     def _compute_amount(self):
