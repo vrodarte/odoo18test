@@ -1,47 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista heredada para añadir campos de descuento en tarifas de proveedor -->
-    <record id="product_template_purchase_form_view_inherit_cascade" model="ir.ui.view">
-        <field name="name">product.template.purchase.cascade.inherit</field>
-        <field name="model">product.template</field>
-    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <!-- Vista heredada para añadir campos de descuento en la lista de proveedores -->
+    <record id="product_supplierinfo_tree_view_cascade" model="ir.ui.view">
+        <field name="name">product.supplierinfo.tree.cascade</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="inherit_id" ref="purchase.product_supplierinfo_tree_view2"/>
         <field name="arch" type="xml">
-            <!-- Añadir campos de descuento en la vista de árbol de seller_ids -->
-            <xpath expr="//field[@name='seller_ids']/tree" position="inside">
+            <xpath expr="//list" position="inside">
                 <field name="discount1" optional="show"/>
                 <field name="discount2" optional="show"/>
                 <field name="discount3" optional="show"/>
                 <field name="discount4" optional="show"/>
                 <field name="final_price" optional="show" readonly="1"/>
             </xpath>
-            
-            <!-- Añadir campos en el formulario de edición de tarifas -->
-            <xpath expr="//field[@name='seller_ids']/form//group" position="inside">
+        </field>
+    </record>
+
+    <!-- Vista heredada para añadir campos de descuento en el formulario de proveedores -->
+    <record id="product_supplierinfo_form_view_cascade" model="ir.ui.view">
+        <field name="name">product.supplierinfo.form.cascade</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="inherit_id" ref="product.product_supplierinfo_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@string='Pricelist']" position="after">
                 <group string="Descuentos en Cascada">
                     <field name="discount1" string="Descuento 1 (%)"/>
-                    <field name="discount2"/>
-                    <field name="discount3"/>
-                    <field name="discount4"/>
-                    <field name="final_price" readonly="1"/>
+                    <field name="discount2" string="Descuento 2 (%)"/>
+                    <field name="discount3" string="Descuento 3 (%)"/>
+                    <field name="discount4" string="Descuento 4 (%)"/>
+                    <field name="final_price" string="Precio Final" readonly="1"/>
                 </group>
             </xpath>
         </field>
     </record>
-    
-    <!-- Vista de producto variante -->
-    <record id="product_product_purchase_form_view_inherit_cascade" model="ir.ui.view">
-        <field name="name">product.product.purchase.cascade.inherit</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="purchase.product_form_view_purchase_order_button"/>
-        <field name="arch" type="xml">
-            <!-- Añadir campos de descuento en la vista de árbol de seller_ids -->
-            <xpath expr="//field[@name='seller_ids']/tree" position="inside">
-                <field name="discount1" optional="show"/>
-                <field name="discount2" optional="show"/>
-                <field name="discount3" optional="show"/>
-                <field name="discount4" optional="show"/>
-                <field name="final_price" optional="show" readonly="1"/>
-            </xpath>
-        </field>
-    </record>
+
 </odoo>
