@@ -6,8 +6,8 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
-            <!-- Añadir columnas de descuentos aplicados en la vista de árbol -->
-            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="after">
+            <!-- Añadir columnas de descuentos aplicados en la vista de lista -->
+            <xpath expr="//field[@name='order_line']//field[@name='price_unit']" position="after">
                 <field name="price_before_discount" optional="hide" readonly="1"/>
                 <field name="applied_discount_1" optional="show" readonly="1" string="D1 (%)"/>
                 <field name="applied_discount_2" optional="show" readonly="1" string="D2 (%)"/>
@@ -16,32 +16,13 @@
             </xpath>
             
             <!-- Añadir campos en el formulario de línea de pedido -->
-            <xpath expr="//field[@name='order_line']/form//group[1]" position="after">
-                <group string="Descuentos Aplicados" colspan="4" col="4">
-                    <field name="price_before_discount" readonly="1"/>
-                    <newline/>
-                    <field name="applied_discount_1" readonly="1"/>
-                    <field name="applied_discount_2" readonly="1"/>
-                    <field name="applied_discount_3" readonly="1"/>
-                    <field name="applied_discount_4" readonly="1"/>
-                </group>
-            </xpath>
-        </field>
-    </record>
-    
-    <!-- Vista heredada del árbol de pedidos de compra -->
-    <record id="purchase_order_tree_inherit_cascade" model="ir.ui.view">
-        <field name="name">purchase.order.tree.cascade.inherit</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
-        <field name="arch" type="xml">
-            <!-- Opcional: añadir indicador si tiene descuentos en cascada -->
-            <xpath expr="//field[@name='amount_total']" position="after">
-                <field name="has_cascading_discounts" invisible="1"/>
-                <widget name="boolean_toggle" 
-                        field="has_cascading_discounts" 
-                        invisible="not has_cascading_discounts"
-                        options='{"icon": "fa-percent", "color": "success"}'/>
+            <xpath expr="//field[@name='order_line']//form//field[@name='taxes_id']" position="after">
+                <separator string="Descuentos Aplicados"/>
+                <field name="price_before_discount" readonly="1"/>
+                <field name="applied_discount_1" readonly="1"/>
+                <field name="applied_discount_2" readonly="1"/>
+                <field name="applied_discount_3" readonly="1"/>
+                <field name="applied_discount_4" readonly="1"/>
             </xpath>
         </field>
     </record>
