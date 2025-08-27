@@ -44,15 +44,15 @@
                 <field name="can_approve" invisible="1"/>
             </xpath>
             
-            <!-- Modificar la vista tree de order_line -->
-            <xpath expr="//field[@name='order_line']/tree" position="attributes">
+            <!-- Modificar la vista list de order_line -->
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
                 <attribute name="decoration-warning">x_approval_status == 'pending'</attribute>
                 <attribute name="decoration-success">x_approval_status == 'approved'</attribute>
                 <attribute name="decoration-danger">x_approval_status == 'rejected'</attribute>
             </xpath>
             
-            <!-- Añadir columnas en la vista tree de líneas -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="after">
+            <!-- Añadir columnas en la vista list de líneas -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="after">
                 <field name="x_pricing_choice" 
                        string="Tipo Precio"
                        widget="selection"
@@ -65,12 +65,12 @@
                                'required': [('x_pricing_choice', '=', 'pricelist')]}"/>
             </xpath>
             
-            <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
                 <attribute name="attrs">{'readonly': [('x_pricing_choice', '=', 'pricelist')]}</attribute>
                 <attribute name="decoration-bf">x_pricing_choice == 'manual'</attribute>
             </xpath>
             
-            <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_subtotal']" position="after">
                 <field name="x_approval_status" 
                        string="Estado Apr."
                        widget="badge"
@@ -118,7 +118,7 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_quotation_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree" position="attributes">
+            <xpath expr="//list" position="attributes">
                 <attribute name="decoration-warning">state == 'to_approve'</attribute>
             </xpath>
             

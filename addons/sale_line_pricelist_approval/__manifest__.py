@@ -41,9 +41,4 @@
     'installable': True,
     'application': False,
     'auto_install': False,
-    'assets': {
-        'web.assets_backend': [
-            'sale_line_pricelist_approval/static/src/js/sale_order_form.js',
-        ],
-    },
 }
