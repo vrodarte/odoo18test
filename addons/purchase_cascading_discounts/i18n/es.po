@@ -19,22 +19,22 @@ msgstr ""
 #. module: purchase_cascading_discounts
 #: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount1
 msgid "Discount 1 (%)"
-msgstr "Descuento 1 (%)"
+msgstr "Desc. 1 (%)"
 
 #. module: purchase_cascading_discounts
 #: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount2
 msgid "Discount 2 (%)"
-msgstr "Descuento 2 (%)"
+msgstr "Desc. 2 (%)"
 
 #. module: purchase_cascading_discounts
 #: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount3
 msgid "Discount 3 (%)"
-msgstr "Descuento 3 (%)"
+msgstr "Desc. 3 (%)"
 
 #. module: purchase_cascading_discounts
 #: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__discount4
 msgid "Discount 4 (%)"
-msgstr "Descuento 4 (%)"
+msgstr "Desc. 4 (%)"
 
 #. module: purchase_cascading_discounts
 #: model:ir.model.fields,field_description:purchase_cascading_discounts.field_product_supplierinfo__final_price
