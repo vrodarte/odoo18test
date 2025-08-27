@@ -137,21 +137,21 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='draft']" position="after">
+            <filter name="my_sale_orders_filter" position="after">
+                <separator/>
                 <filter string="Esperando Aprobación" 
                         name="to_approve" 
                         domain="[('state', '=', 'to_approve')]"/>
-                <separator/>
                 <filter string="Con Precios Pendientes" 
                         name="has_pending" 
                         domain="[('has_pending_approval', '=', True)]"/>
-            </xpath>
+            </filter>
             
-            <xpath expr="//group" position="inside">
+            <filter name="customer" position="after">
                 <filter string="Estado de Aprobación" 
                         name="groupby_approval_state" 
                         context="{'group_by': 'state'}"/>
-            </xpath>
+            </filter>
         </field>
     </record>
     
@@ -190,16 +190,16 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_sale_order_kanban"/>
         <field name="arch" type="xml">
-            <xpath expr="//kanban" position="inside">
+            <field name="currency_id" position="after">
                 <field name="has_pending_approval"/>
-            </xpath>
+            </field>
             
-            <xpath expr="//div[hasclass('oe_kanban_bottom_right')]" position="inside">
+            <field name="state" position="before">
                 <span t-if="record.has_pending_approval.raw_value" 
-                      class="badge badge-warning">
-                    <i class="fa fa-clock-o"/> Aprobación Pendiente
+                      class="badge text-bg-warning me-1">
+                    <i class="fa fa-clock-o"/> Aprobación
                 </span>
-            </xpath>
+            </field>
         </field>
     </record>
 </odoo>
