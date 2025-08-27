@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_order_salesman,sale.order.salesman.pricelist.approval,sale.model_sale_order,sales_team.group_sale_salesman,1,1,1,0
+access_sale_order_approver,sale.order.approver,sale.model_sale_order,group_sale_price_approver,1,1,0,0
+access_sale_order_line_salesman,sale.order.line.salesman.pricelist.approval,sale.model_sale_order_line,sales_team.group_sale_salesman,1,1,1,1
+access_sale_order_line_approver,sale.order.line.approver,sale.model_sale_order_line,group_sale_price_approver,1,1,0,0
+access_product_pricelist_salesman,product.pricelist.salesman.line.selection,product.model_product_pricelist,sales_team.group_sale_salesman,1,0,0,0
+access_product_pricelist_configurator,product.pricelist.configurator,product.model_product_pricelist,group_pricelist_configurator,1,1,1,0

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Lista de Precios 1: Precio Estándar -->
+        <record id="pricelist_standard" model="product.pricelist">
+            <field name="name">Lista de Precios Estándar</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="company_id" eval="False"/>
+            <field name="x_is_line_pricelist" eval="True"/>
+            <field name="sequence">10</field>
+        </record>
+        
+        <!-- Regla para Lista Estándar: Sin descuento -->
+        <record id="pricelist_item_standard" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_standard"/>
+            <field name="applied_on">3_global</field>
+            <field name="compute_price">formula</field>
+            <field name="base">list_price</field>
+        </record>
+        
+        <!-- Lista de Precios 2: Mayorista (10% descuento) -->
+        <record id="pricelist_wholesale" model="product.pricelist">
+            <field name="name">Lista de Precios Mayorista</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="company_id" eval="False"/>
+            <field name="x_is_line_pricelist" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        
+        <!-- Regla para Lista Mayorista: 10% descuento -->
+        <record id="pricelist_item_wholesale" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_wholesale"/>
+            <field name="applied_on">3_global</field>
+            <field name="compute_price">percentage</field>
+            <field name="percent_price">10</field>
+        </record>
+        
+        <!-- Lista de Precios 3: VIP (15% descuento) -->
+        <record id="pricelist_vip" model="product.pricelist">
+            <field name="name">Lista de Precios VIP</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="company_id" eval="False"/>
+            <field name="x_is_line_pricelist" eval="True"/>
+            <field name="sequence">30</field>
+        </record>
+        
+        <!-- Regla para Lista VIP: 15% descuento -->
+        <record id="pricelist_item_vip" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_vip"/>
+            <field name="applied_on">3_global</field>
+            <field name="compute_price">percentage</field>
+            <field name="percent_price">15</field>
+        </record>
+        
+        <!-- Parámetro de configuración: Variación máxima de precio -->
+        <record id="config_parameter_max_variation" model="ir.config_parameter">
+            <field name="key">sale_line_pricelist_approval.max_price_variation</field>
+            <field name="value">50</field>
+        </record>
+        
+        <!-- Secuencia para códigos de aprobación (opcional) -->
+        <record id="sequence_approval_code" model="ir.sequence">
+            <field name="name">Código de Aprobación de Precio</field>
+            <field name="code">sale.price.approval</field>
+            <field name="prefix">APR/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+        </record>
+    </data>
+</odoo>
