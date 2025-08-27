@@ -13,7 +13,7 @@
                         type="object" 
                         string="Solicitar Aprobación"
                         class="btn-primary"
-                        attrs="{'invisible': ['|', ('has_pending_approval', '=', False), ('state', 'not in', ['draft', 'sent'])]}"
+                        invisible="not has_pending_approval or state not in ('draft', 'sent')"
                         icon="fa-check-circle"/>
                 
                 <button name="action_approve_prices" 
@@ -21,7 +21,7 @@
                         string="Aprobar Precios"
                         class="btn-success"
                         groups="sale_line_pricelist_approval.group_sale_price_approver"
-                        attrs="{'invisible': ['|', ('has_pending_approval', '=', False), ('state', '!=', 'to_approve')]}"
+                        invisible="not has_pending_approval or state != 'to_approve'"
                         icon="fa-thumbs-up"/>
                 
                 <button name="action_reject_prices" 
@@ -29,7 +29,7 @@
                         string="Rechazar Precios"
                         class="btn-danger"
                         groups="sale_line_pricelist_approval.group_sale_price_approver"
-                        attrs="{'invisible': ['|', ('has_pending_approval', '=', False), ('state', '!=', 'to_approve')]}"
+                        invisible="not has_pending_approval or state != 'to_approve'"
                         icon="fa-thumbs-down"/>
             </xpath>
             
@@ -61,12 +61,12 @@
                 <field name="x_pricelist_id" 
                        string="Lista Precios"
                        options="{'no_create': True, 'no_create_edit': True}"
-                       attrs="{'invisible': [('x_pricing_choice', '!=', 'pricelist')], 
-                               'required': [('x_pricing_choice', '=', 'pricelist')]}"/>
+                       invisible="x_pricing_choice != 'pricelist'"
+                       required="x_pricing_choice == 'pricelist'"/>
             </xpath>
             
             <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
-                <attribute name="attrs">{'readonly': [('x_pricing_choice', '=', 'pricelist')]}</attribute>
+                <attribute name="readonly">x_pricing_choice == 'pricelist'</attribute>
                 <attribute name="decoration-bf">x_pricing_choice == 'manual'</attribute>
             </xpath>
             
@@ -91,20 +91,20 @@
                         <group string="Configuración de Precio">
                             <field name="x_pricing_choice" widget="radio"/>
                             <field name="x_pricelist_id" 
-                                   attrs="{'invisible': [('x_pricing_choice', '!=', 'pricelist')],
-                                           'required': [('x_pricing_choice', '=', 'pricelist')]}"
+                                   invisible="x_pricing_choice != 'pricelist'"
+                                   required="x_pricing_choice == 'pricelist'"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="x_original_price" 
-                                   attrs="{'invisible': [('x_pricing_choice', '!=', 'manual')]}"
+                                   invisible="x_pricing_choice != 'manual'"
                                    readonly="1"/>
                         </group>
                         <group string="Estado de Aprobación" 
-                               attrs="{'invisible': [('x_pricing_choice', '!=', 'manual')]}">
+                               invisible="x_pricing_choice != 'manual'">
                             <field name="x_approval_status" widget="badge"/>
                             <field name="x_approved_by" 
-                                   attrs="{'invisible': [('x_approval_status', 'not in', ['approved', 'rejected'])]}"/>
+                                   invisible="x_approval_status not in ('approved', 'rejected')"/>
                             <field name="x_approval_date" 
-                                   attrs="{'invisible': [('x_approval_status', 'not in', ['approved', 'rejected'])]}"/>
+                                   invisible="x_approval_status not in ('approved', 'rejected')"/>
                         </group>
                     </group>
                 </sheet>
