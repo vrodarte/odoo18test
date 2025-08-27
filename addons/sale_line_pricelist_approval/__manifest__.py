@@ -21,8 +21,8 @@
         - Registro de auditoría en el chatter
     """,
     'category': 'Sales/Sales',
-    'author': 'Tu Empresa',
-    'website': 'https://www.tuempresa.com',
+    'author': 'ITOnline - Victor Rodarte',
+    'website': 'https://www.itonline.com.mx',
     'license': 'LGPL-3',
     'depends': [
         'sale_management',
