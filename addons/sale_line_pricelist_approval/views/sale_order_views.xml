@@ -53,21 +53,15 @@
             
             <!-- Añadir columnas en la vista list de líneas -->
             <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="after">
-                <field name="x_pricing_choice" 
-                       string="Tipo Precio"
-                       widget="selection"
-                       required="1"/>
-                
                 <field name="x_pricelist_id" 
                        string="Lista Precios"
                        options="{'no_create': True, 'no_create_edit': True}"
-                       invisible="x_pricing_choice != 'pricelist'"
-                       required="x_pricing_choice == 'pricelist'"/>
+                       help="Seleccione una lista de precios. Si es manual, requerirá aprobación."/>
             </xpath>
             
             <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
-                <attribute name="readonly">x_pricing_choice == 'pricelist'</attribute>
-                <attribute name="decoration-bf">x_pricing_choice == 'manual'</attribute>
+                <attribute name="readonly">x_pricelist_id and not x_pricelist_id.x_is_manual_price</attribute>
+                <attribute name="decoration-bf">x_pricelist_id and x_pricelist_id.x_is_manual_price</attribute>
             </xpath>
             
             <xpath expr="//field[@name='order_line']/list/field[@name='price_subtotal']" position="after">
@@ -89,17 +83,15 @@
                 <sheet>
                     <group>
                         <group string="Configuración de Precio">
-                            <field name="x_pricing_choice" widget="radio"/>
                             <field name="x_pricelist_id" 
-                                   invisible="x_pricing_choice != 'pricelist'"
-                                   required="x_pricing_choice == 'pricelist'"
-                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   help="Seleccione una lista de precios. Si es manual, podrá editar el precio pero requerirá aprobación."/>
                             <field name="x_original_price" 
-                                   invisible="x_pricing_choice != 'manual'"
+                                   invisible="not x_pricelist_id or not x_pricelist_id.x_is_manual_price"
                                    readonly="1"/>
                         </group>
                         <group string="Estado de Aprobación" 
-                               invisible="x_pricing_choice != 'manual'">
+                               invisible="not x_pricelist_id or not x_pricelist_id.x_is_manual_price">
                             <field name="x_approval_status" widget="badge"/>
                             <field name="x_approved_by" 
                                    invisible="x_approval_status not in ('approved', 'rejected')"/>
@@ -165,6 +157,9 @@
                 <field name="x_is_line_pricelist" 
                        string="Disponible en líneas de venta"
                        help="Si está marcado, esta lista de precios estará disponible para selección en las líneas de pedido de venta"/>
+                <field name="x_is_manual_price" 
+                       string="Precio Manual"
+                       help="Si está marcado, esta lista de precios permitirá editar precios manualmente pero requerirá aprobación"/>
             </xpath>
         </field>
     </record>
@@ -178,6 +173,10 @@
             <xpath expr="//field[@name='currency_id']" position="after">
                 <field name="x_is_line_pricelist" 
                        string="En Líneas"
+                       widget="boolean_toggle"
+                       optional="show"/>
+                <field name="x_is_manual_price" 
+                       string="Manual"
                        widget="boolean_toggle"
                        optional="show"/>
             </xpath>

@@ -233,17 +233,6 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
     
-    x_pricing_choice = fields.Selection(
-        [
-            ('pricelist', 'Lista de Precios'),
-            ('manual', 'Precio Manual')
-        ],
-        string='Tipo de Precio',
-        default='pricelist',
-        required=True,
-        help='Seleccione entre usar una lista de precios predefinida o establecer un precio manual'
-    )
-    
     x_pricelist_id = fields.Many2one(
         'product.pricelist',
         string='Lista de Precios',
@@ -281,52 +270,50 @@ class SaleOrderLine(models.Model):
         help='Precio calculado según lista de precios estándar'
     )
     
-    @api.onchange('x_pricing_choice', 'x_pricelist_id', 'product_id', 'product_uom_qty')
+    def _is_manual_price_line(self):
+        """Determina si esta línea usa precio manual basado en la lista de precios seleccionada"""
+        self.ensure_one()
+        return self.x_pricelist_id and self.x_pricelist_id.x_is_manual_price
+    
+    @api.onchange('x_pricelist_id', 'product_id', 'product_uom_qty')
     def _onchange_pricing_fields(self):
         """Maneja los cambios en los campos de precio"""
         if not self.product_id:
             return
         
-        if self.x_pricing_choice == 'pricelist':
-            if self.x_pricelist_id:
-                # Obtener precio de la lista seleccionada
-                price = self.x_pricelist_id._get_product_price(
-                    self.product_id,
-                    self.product_uom_qty or 1.0,
-                    uom=self.product_uom,
-                    date=self.order_id.date_order,
-                    currency=self.order_id.currency_id
-                )
+        if self.x_pricelist_id:
+            # Obtener precio de la lista seleccionada
+            price = self.x_pricelist_id._get_product_price(
+                self.product_id,
+                self.product_uom_qty or 1.0,
+                uom=self.product_uom,
+                date=self.order_id.date_order,
+                currency=self.order_id.currency_id
+            )
+            
+            if self.x_pricelist_id.x_is_manual_price:
+                # Lista de precios manual - establecer precio base pero permitir edición
+                if not self.price_unit or self.price_unit == 0:
+                    self.price_unit = price
+                self.x_approval_status = 'pending'
+                self.x_original_price = price
+            else:
+                # Lista de precios normal - precio fijo
                 self.price_unit = price
                 self.x_approval_status = 'na'
                 self.x_original_price = price
-            else:
-                # Usar lista de precios de la orden
-                if self.order_id.pricelist_id:
-                    self._compute_price_unit()
-                    self.x_approval_status = 'na'
-                    self.x_original_price = self.price_unit
-        
-        elif self.x_pricing_choice == 'manual':
-            # Precio manual requiere aprobación
-            self.x_pricelist_id = False
-            self.x_approval_status = 'pending'
-            # Guardar el precio original para referencia
-            if not self.x_original_price and self.order_id.pricelist_id:
-                original_price = self.order_id.pricelist_id._get_product_price(
-                    self.product_id,
-                    self.product_uom_qty or 1.0,
-                    uom=self.product_uom,
-                    date=self.order_id.date_order,
-                    currency=self.order_id.currency_id
-                )
-                self.x_original_price = original_price
+        else:
+            # Sin lista de precios específica - usar la lista de precios de la orden
+            if self.order_id.pricelist_id:
+                self._compute_price_unit()
+                self.x_approval_status = 'na'
+                self.x_original_price = self.price_unit
     
-    @api.constrains('price_unit', 'x_pricing_choice', 'x_original_price')
+    @api.constrains('price_unit', 'x_original_price')
     def _check_manual_price_variation(self):
         """Valida que el precio manual no exceda límites configurables"""
         for line in self:
-            if line.x_pricing_choice == 'manual' and line.x_original_price > 0:
+            if line._is_manual_price_line() and line.x_original_price > 0:
                 # Calcular variación porcentual
                 variation = abs((line.price_unit - line.x_original_price) / line.x_original_price * 100)
                 
@@ -351,10 +338,10 @@ class SaleOrderLine(models.Model):
     
     def write(self, vals):
         """Intercepta cambios para manejar el estado de aprobación"""
-        if 'price_unit' in vals and self.x_pricing_choice == 'manual':
-            # Si cambia el precio manual y ya estaba aprobado, vuelve a pendiente
+        if 'price_unit' in vals:
             for line in self:
-                if line.x_approval_status == 'approved':
+                if line._is_manual_price_line() and line.x_approval_status == 'approved':
+                    # Si cambia el precio manual y ya estaba aprobado, vuelve a pendiente
                     vals['x_approval_status'] = 'pending'
                     vals['x_approved_by'] = False
                     vals['x_approval_date'] = False
@@ -365,10 +352,15 @@ class SaleOrderLine(models.Model):
     def create(self, vals_list):
         """Asegura valores correctos al crear líneas"""
         for vals in vals_list:
-            if vals.get('x_pricing_choice') == 'manual':
-                vals['x_approval_status'] = 'pending'
-            elif 'x_pricing_choice' not in vals:
-                vals['x_pricing_choice'] = 'pricelist'
+            # Determinar si será una línea de precio manual basado en la lista de precios
+            pricelist_id = vals.get('x_pricelist_id')
+            if pricelist_id:
+                pricelist = self.env['product.pricelist'].browse(pricelist_id)
+                if pricelist.x_is_manual_price:
+                    vals['x_approval_status'] = 'pending'
+                else:
+                    vals['x_approval_status'] = 'na'
+            else:
                 vals['x_approval_status'] = 'na'
         
         return super().create(vals_list)
@@ -381,4 +373,10 @@ class ProductPricelist(models.Model):
         string='Disponible para líneas de venta',
         default=False,
         help='Marcar si esta lista de precios debe estar disponible para selección en líneas de pedido'
+    )
+    
+    x_is_manual_price = fields.Boolean(
+        string='Precio Manual',
+        default=False,
+        help='Marcar si esta lista de precios permite editar precios manualmente (requiere aprobación)'
     )

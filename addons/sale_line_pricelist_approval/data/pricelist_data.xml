@@ -52,6 +52,24 @@
             <field name="percent_price">15</field>
         </record>
         
+        <!-- Lista de Precios 4: Precio Manual (requiere aprobación) -->
+        <record id="pricelist_manual" model="product.pricelist">
+            <field name="name">Precio Manual - Especial</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="company_id" eval="False"/>
+            <field name="x_is_line_pricelist" eval="True"/>
+            <field name="x_is_manual_price" eval="True"/>
+            <field name="sequence">40</field>
+        </record>
+        
+        <!-- Regla para Lista Manual: Sin descuento (precio base para edición manual) -->
+        <record id="pricelist_item_manual" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_manual"/>
+            <field name="applied_on">3_global</field>
+            <field name="compute_price">formula</field>
+            <field name="base">list_price</field>
+        </record>
+        
         <!-- Parámetro de configuración: Variación máxima de precio -->
         <record id="config_parameter_max_variation" model="ir.config_parameter">
             <field name="key">sale_line_pricelist_approval.max_price_variation</field>
