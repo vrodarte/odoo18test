@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encod            <xpath expr="//field[@name='company_id']" position="after">
+                <separator string="Descuentos en Cascada"/>
+                <field name="discount1" string="Descuento 1 (%)"/>
+                <field name="discount2" string="Descuento 2 (%)"/>
+                <field name="discount3" string="Descuento 3 (%)"/>
+                <field name="discount4" string="Descuento 4 (%)"/>
+                <field name="discount5" string="Descuento 5 (%)"/>
+                <field name="final_price" string="Precio Final" readonly="1"/>
+            </xpath>-8"?>
 <odoo>
     <!-- Vista heredada para añadir campos de descuento en la lista de proveedores -->
     <record id="product_supplierinfo_tree_view_cascade" model="ir.ui.view">
@@ -11,6 +19,7 @@
                 <field name="discount2" optional="show"/>
                 <field name="discount3" optional="show"/>
                 <field name="discount4" optional="show"/>
+                <field name="discount5" optional="show"/>
                 <field name="final_price" optional="show" readonly="1"/>
             </xpath>
         </field>

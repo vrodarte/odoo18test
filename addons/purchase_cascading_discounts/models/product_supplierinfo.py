@@ -35,6 +35,13 @@ class ProductSupplierinfo(models.Model):
         help="Cuarto descuento en cascada aplicado al precio del proveedor."
     )
     
+    discount5 = fields.Float(
+        string='Desc. 5 (%)',
+        digits='Discount',
+        default=0.0,
+        help="Quinto descuento en cascada aplicado al precio del proveedor."
+    )
+    
     # Campo computado para mostrar el precio final con todos los descuentos
     final_price = fields.Float(
         string='Precio Final',
@@ -43,7 +50,7 @@ class ProductSupplierinfo(models.Model):
         help="Precio final después de aplicar todos los descuentos en cascada."
     )
     
-    @api.depends('price', 'discount1', 'discount2', 'discount3', 'discount4')
+    @api.depends('price', 'discount1', 'discount2', 'discount3', 'discount4', 'discount5')
     def _compute_final_price(self):
         """Calcula el precio final aplicando todos los descuentos en cascada"""
         for record in self:
@@ -52,7 +59,8 @@ class ProductSupplierinfo(models.Model):
                 record.discount1 or 0.0,
                 record.discount2 or 0.0,
                 record.discount3 or 0.0,
-                record.discount4 or 0.0
+                record.discount4 or 0.0,
+                record.discount5 or 0.0
             ]
             
             final_price = price
@@ -62,11 +70,11 @@ class ProductSupplierinfo(models.Model):
             
             record.final_price = final_price
     
-    @api.constrains('discount1', 'discount2', 'discount3', 'discount4')
+    @api.constrains('discount1', 'discount2', 'discount3', 'discount4', 'discount5')
     def _check_discount_values(self):
         """Valida que los descuentos estén en un rango válido (0-100)"""
         for record in self:
-            discounts = [record.discount1, record.discount2, record.discount3, record.discount4]
+            discounts = [record.discount1, record.discount2, record.discount3, record.discount4, record.discount5]
             for disc in discounts:
                 if disc and (disc < 0 or disc > 100):
                     raise ValidationError(_('Los descuentos deben estar entre 0 y 100%'))

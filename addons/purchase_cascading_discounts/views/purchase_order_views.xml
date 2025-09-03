@@ -13,6 +13,7 @@
                 <field name="applied_discount_2" optional="show" string="D2 (%)" readonly="parent.state in ('done', 'cancel')" force_save="1"/>
                 <field name="applied_discount_3" optional="show" string="D3 (%)" readonly="parent.state in ('done', 'cancel')" force_save="1"/>
                 <field name="applied_discount_4" optional="show" string="D4 (%)" readonly="parent.state in ('done', 'cancel')" force_save="1"/>
+                <field name="applied_discount_5" optional="show" string="D5 (%)" readonly="parent.state in ('done', 'cancel')" force_save="1"/>
                 <field name="computed_final_price" optional="hide" string="Precio Calc." readonly="1"/>
             </xpath>
             
@@ -26,6 +27,7 @@
                     <field name="applied_discount_2" readonly="parent.state in ('done', 'cancel')"/>
                     <field name="applied_discount_3" readonly="parent.state in ('done', 'cancel')"/>
                     <field name="applied_discount_4" readonly="parent.state in ('done', 'cancel')"/>
+                    <field name="applied_discount_5" readonly="parent.state in ('done', 'cancel')"/>
                 </group>
             </xpath>
         </field>

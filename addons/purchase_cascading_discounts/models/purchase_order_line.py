@@ -34,6 +34,12 @@ class PurchaseOrderLine(models.Model):
         help="Cuarto descuento aplicado desde la tarifa del proveedor"
     )
     
+    applied_discount_5 = fields.Float(
+        string='Desc. 5 (%)',
+        digits='Discount',
+        help="Quinto descuento aplicado desde la tarifa del proveedor"
+    )
+    
     # Campo para mostrar el precio antes de descuentos
     price_before_discount = fields.Float(
         string='Precio Original',
@@ -50,7 +56,7 @@ class PurchaseOrderLine(models.Model):
         help="Precio calculado aplicando descuentos en cascada"
     )
     
-    @api.depends('price_before_discount', 'applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4')
+    @api.depends('price_before_discount', 'applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'applied_discount_5')
     def _compute_final_price(self):
         """
         Calcula el precio final basado en el precio original y los descuentos en cascada.
@@ -62,7 +68,8 @@ class PurchaseOrderLine(models.Model):
                     line.applied_discount_1 or 0.0,
                     line.applied_discount_2 or 0.0,
                     line.applied_discount_3 or 0.0,
-                    line.applied_discount_4 or 0.0
+                    line.applied_discount_4 or 0.0,
+                    line.applied_discount_5 or 0.0
                 ]
                 
                 for discount in discounts:
@@ -108,7 +115,8 @@ class PurchaseOrderLine(models.Model):
                 ('discount1', 'applied_discount_1'),
                 ('discount2', 'applied_discount_2'),
                 ('discount3', 'applied_discount_3'),
-                ('discount4', 'applied_discount_4')
+                ('discount4', 'applied_discount_4'),
+                ('discount5', 'applied_discount_5')
             ]
             
             # 4. Aplicar los descuentos en cascada
@@ -126,7 +134,7 @@ class PurchaseOrderLine(models.Model):
             _logger.info(
                 'Descuentos en cascada aplicados: Producto=%s, Proveedor=%s, '
                 'Precio Original=%.2f, Precio Final=%.2f, '
-                'Descuentos=[%.2f%%, %.2f%%, %.2f%%, %.2f%%]',
+                'Descuentos=[%.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%]',
                 self.product_id.name,
                 self.order_id.partner_id.name,
                 price,
@@ -134,7 +142,8 @@ class PurchaseOrderLine(models.Model):
                 self.applied_discount_1,
                 self.applied_discount_2,
                 self.applied_discount_3,
-                self.applied_discount_4
+                self.applied_discount_4,
+                self.applied_discount_5
             )
         else:
             # Limpiar campos si no hay tarifa de proveedor
@@ -142,6 +151,7 @@ class PurchaseOrderLine(models.Model):
             self.applied_discount_2 = 0.0
             self.applied_discount_3 = 0.0
             self.applied_discount_4 = 0.0
+            self.applied_discount_5 = 0.0
             self.price_before_discount = 0.0
     
     @api.onchange('product_qty', 'product_uom', 'date_planned')
@@ -153,7 +163,7 @@ class PurchaseOrderLine(models.Model):
         if self.product_id and self.order_id and self.order_id.partner_id:
             self._onchange_product_id_cascade_discounts()
     
-    @api.onchange('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'price_before_discount')
+    @api.onchange('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'applied_discount_5', 'price_before_discount')
     def _onchange_manual_discounts(self):
         """
         Recalcula el precio final cuando se modifican manualmente los descuentos o el precio base.
@@ -179,6 +189,7 @@ class PurchaseOrderLine(models.Model):
             self.applied_discount_2 = 0.0
             self.applied_discount_3 = 0.0
             self.applied_discount_4 = 0.0
+            self.applied_discount_5 = 0.0
     
     def _calculate_final_price_from_discounts(self):
         """
@@ -194,7 +205,8 @@ class PurchaseOrderLine(models.Model):
             self.applied_discount_1 or 0.0,
             self.applied_discount_2 or 0.0,
             self.applied_discount_3 or 0.0,
-            self.applied_discount_4 or 0.0
+            self.applied_discount_4 or 0.0,
+            self.applied_discount_5 or 0.0
         ]
         
         for discount in discounts:
@@ -208,14 +220,15 @@ class PurchaseOrderLine(models.Model):
         _logger.info(
             'Descuentos manuales aplicados: Producto=%s, '
             'Precio Original=%.2f, Precio Final=%.2f, '
-            'Descuentos=[%.2f%%, %.2f%%, %.2f%%, %.2f%%]',
+            'Descuentos=[%.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%]',
             self.product_id.name or 'N/A',
             self.price_before_discount,
             final_price,
             self.applied_discount_1,
             self.applied_discount_2,
             self.applied_discount_3,
-            self.applied_discount_4
+            self.applied_discount_4,
+            self.applied_discount_5
         )
     
     @api.depends('product_qty', 'price_unit', 'taxes_id')
@@ -227,7 +240,7 @@ class PurchaseOrderLine(models.Model):
         res = super()._compute_amount()
         return res
     
-    @api.constrains('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4')
+    @api.constrains('applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'applied_discount_5')
     def _check_discount_values(self):
         """
         Valida que los descuentos estén en un rango válido (0-100%).
@@ -237,7 +250,8 @@ class PurchaseOrderLine(models.Model):
                 line.applied_discount_1,
                 line.applied_discount_2,
                 line.applied_discount_3,
-                line.applied_discount_4
+                line.applied_discount_4,
+                line.applied_discount_5
             ]
             for i, discount in enumerate(discounts, 1):
                 if discount < 0 or discount > 100:
@@ -253,7 +267,7 @@ class PurchaseOrderLine(models.Model):
         result = super().write(vals)
         
         # Si se modificó algún descuento o el precio base, recalcular
-        discount_fields = ['applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'price_before_discount']
+        discount_fields = ['applied_discount_1', 'applied_discount_2', 'applied_discount_3', 'applied_discount_4', 'applied_discount_5', 'price_before_discount']
         if any(field in vals for field in discount_fields):
             for line in self:
                 if line.price_before_discount > 0:
